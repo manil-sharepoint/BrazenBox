@@ -2,7 +2,10 @@ import { Resend } from "resend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resendFrom = process.env.RESEND_FROM || "BrazenBox <onboarding@resend.dev>";
-const projectRecipient = process.env.PROJECT_REQUEST_RECIPIENT || "roy.manil@gmail.com";
+const projectRecipients = (process.env.PROJECT_REQUEST_RECIPIENT || "roy.manil@gmail.com")
+  .split(",")
+  .map((email) => email.trim())
+  .filter(Boolean);
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -27,7 +30,7 @@ export async function sendProjectRequestEmail({ name, email, organization, proje
 
   const { data, error } = await resend.emails.send({
     from: resendFrom,
-    to: projectRecipient,
+    to: projectRecipients,
     replyTo: email,
     subject,
     text
