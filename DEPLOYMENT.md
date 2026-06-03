@@ -57,6 +57,9 @@ Set environment variables:
 NODE_VERSION=20
 SUPABASE_URL=your Supabase project URL
 SUPABASE_SERVICE_ROLE_KEY=your Supabase service role key
+RESEND_API_KEY=your Resend API key
+RESEND_FROM=BrazenBox <your-verified-sender@yourdomain.com>
+PROJECT_REQUEST_RECIPIENT=roy.manil@gmail.com
 ```
 
 The Express server serves the built React app from `dist` in production and handles API routes under `/api`.
@@ -66,6 +69,7 @@ The Express server serves the built React app from `dist` in production and hand
 After deployment:
 
 - Open `/api/health`; it should return `"database":"supabase"`.
+- It should return `"email":"resend"` when Resend is configured.
 - Submit the contact form.
 - Check the `demo_requests` table in Supabase.
 

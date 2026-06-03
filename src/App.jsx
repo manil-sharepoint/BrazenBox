@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Bot, BrainCircuit, CheckCircle2, Cpu, MailCheck, Play, Radar, ShieldCheck, Workflow, Zap } from "lucide-react";
+import V2Page from "./V2Page.jsx";
 
 const services = [
   [Bot, "AI agents", "Reception, intake, FAQ, internal copilots, and task agents for local teams."],
@@ -12,6 +13,10 @@ const emptyDemo = { name: "", email: "", businessType: "", useCase: "" };
 const emptyLead = { business: "", recipient: "", useCase: "" };
 
 export default function App() {
+  if (window.location.pathname.toLowerCase() === "/v2") {
+    return <V2Page />;
+  }
+
   const [leads, setLeads] = useState([]);
   const [demo, setDemo] = useState(emptyDemo);
   const [lead, setLead] = useState(emptyLead);

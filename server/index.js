@@ -5,6 +5,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDatabaseConfigured, supabase, toDemoRequest, toLead } from "./db.js";
+import { isEmailConfigured, sendProjectRequestEmail } from "./email.js";
 
 const app = express();
 const port = process.env.PORT || 4174;
@@ -51,7 +52,8 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     service: "BrazenBox API",
-    database: isDatabaseConfigured ? "supabase" : "memory"
+    database: isDatabaseConfigured ? "supabase" : "memory",
+    email: isEmailConfigured ? "resend" : "not_configured"
   });
 });
 
@@ -109,6 +111,61 @@ app.post("/api/demo-requests", async (req, res) => {
 
   demoRequests.unshift(request);
   res.status(201).json({ request });
+});
+
+app.post("/api/start-project", async (req, res) => {
+  const { name, email, organization, project } = req.body;
+
+  if (!name || !email || !project) {
+    return res.status(400).json({ error: "Name, email, and project details are required." });
+  }
+
+  const businessType = organization || "V2 project request";
+  const useCase = [
+    "V2 Start a Project request",
+    organization ? `Organization: ${organization}` : "Organization: Not provided",
+    "",
+    project
+  ].join("\n");
+
+  let request;
+
+  if (isDatabaseConfigured) {
+    const { data, error } = await supabase
+      .from("demo_requests")
+      .insert({
+        name,
+        email,
+        business_type: businessType,
+        use_case: useCase
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({ error: "Could not save project request." });
+    }
+
+    request = toDemoRequest(data);
+  } else {
+    request = {
+      id: `request-${Date.now()}`,
+      name,
+      email,
+      businessType,
+      useCase,
+      createdAt: new Date().toISOString()
+    };
+
+    demoRequests.unshift(request);
+  }
+
+  const emailResult = await sendProjectRequestEmail({ name, email, organization, project });
+
+  res.status(201).json({
+    request,
+    email: emailResult
+  });
 });
 
 app.post("/api/cold-email", async (req, res) => {

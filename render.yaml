@@ -12,3 +12,9 @@ services:
         value: https://vmshwnvwtobwdvcuahvk.supabase.co
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+      - key: PROJECT_REQUEST_RECIPIENT
+        value: roy.manil@gmail.com
